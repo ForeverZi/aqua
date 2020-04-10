@@ -142,7 +142,7 @@ func (self *Client) sendCloseMsg(code int, msg string) {
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	// 只接受第一次设置的关闭消息
-	if self.flags&SEND_CLOSE_MSG == 1 {
+	if self.flags&SEND_CLOSE_MSG > 0 {
 		return
 	}
 	self.flags = self.flags | SEND_CLOSE_MSG
@@ -150,7 +150,7 @@ func (self *Client) sendCloseMsg(code int, msg string) {
 }
 
 func (self *Client) readyClose() bool {
-	// readClose := self.flags & READ_CLOSED == 1
+	// readClose := self.flags & READ_CLOSED > 0
 	writeClose := (self.flags & WRITE_CLOSED) > 0
 	unregisted := (self.flags & UNREGISTERED) > 0
 	return writeClose && unregisted

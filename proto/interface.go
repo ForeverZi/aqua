@@ -1,8 +1,7 @@
 package proto
 
-type MsgProto interface{
-
-	Marshal(interface{})([]byte, error)
+type MsgProto interface {
+	Marshal(interface{}) ([]byte, error)
 
 	Unmarshal([]byte, interface{}) error
 }

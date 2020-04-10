@@ -163,8 +163,6 @@ func (hub *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		hub.unregisterChan <- oldClient
 	}
 	hub.registerChan <- client
-	go client.Write()
-	go client.Read()
 	go client.OnRegistered()
 }
 

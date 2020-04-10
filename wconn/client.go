@@ -1,8 +1,8 @@
 package wconn
 
 import (
-	"time"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
@@ -127,12 +127,18 @@ func (self *Client) GetID() int64 {
 	return self.id
 }
 
-func (self *Client) OnRegistered() bool {
+func (self *Client) OnRegistered() (closed bool) {
 	if self.hub.conf.onClientRegistered != nil {
-		return self.hub.conf.onClientRegistered(self)
-	} else {
-		return false
+		closed = self.hub.conf.onClientRegistered(self)
 	}
+	if closed {
+		self.sendCloseMsg("regfail")
+		self.Close()
+		return
+	}
+	go self.Write()
+	go self.Read()
+	return
 }
 
 func (self *Client) OnUnregistered() {

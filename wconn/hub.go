@@ -119,7 +119,7 @@ func (hub *Hub) Run() {
 				log.Printf("移除客户端:%v", client.id)
 				delete(hub.pool, client.id)
 			}
-			client.Close()
+			go client.Close()
 		case msg, ok := <-hub.broadcastChan:
 			if !ok {
 				return

@@ -1,4 +1,4 @@
-package proto
+package encoder
 
 type MsgProto interface {
 	Marshal(interface{}) ([]byte, error)

@@ -4,6 +4,7 @@ import (
 	"log"
 	"sync"
 	"time"
+	"sync/atomic"
 
 	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
@@ -37,7 +38,7 @@ type Client struct {
 	id      int64
 	send    chan []byte
 	limiter *rate.Limiter
-	MsgID   int64
+	MsgID   int32
 	SendWnd []AckMsg
 	cond    sync.Cond
 	//标志: 读关闭(0x01),写关闭(0x02),反注册(0x04)
@@ -69,6 +70,10 @@ func (self *Client) Close() {
 
 func (self *Client) Send(msg []byte) {
 	self.send <- msg
+}
+
+func (self *Client) AcqMsgID() int32 {
+	return atomic.AddInt32(&self.MsgID, 1)
 }
 
 func (self *Client) Ack(id int64) {

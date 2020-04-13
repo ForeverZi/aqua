@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ForeverZi/aqua/wconn"
+	"github.com/ForeverZi/aqua/encoder"
 	"github.com/json-iterator/go"
 )
 
@@ -28,24 +29,26 @@ type ExMsg struct{
 
 type ResponseFunc func(client *wconn.Client, msg ExMsg) error
 
-func NewExHandler() *ExHandler{
+func NewExHandler(encoder encoder.MsgProto) *ExHandler{
 	h := &ExHandler{
 		m: make(map[ActionCode]ResponseFunc),
+		encoder: encoder,
 	}
 	h.HandleFunc(ECHO, func(client *wconn.Client, msg ExMsg)error{
-		client.Send([]byte(msg.Params))
+		h.send(client, msg)
 		return nil
 	})
 	return h
 }
 
 type ExHandler struct{
-	m 	map[ActionCode]ResponseFunc
+	m 			map[ActionCode]ResponseFunc
+	encoder		encoder.MsgProto
 }
 
 func (exh *ExHandler) Response(client *wconn.Client, data []byte) error {
 	var msg ExMsg
-	err := json.Unmarshal(data, &msg)
+	err := exh.encoder.Unmarshal(data, &msg)
 	if err != nil {
 		return err
 	}
@@ -61,4 +64,13 @@ func (exh *ExHandler) Response(client *wconn.Client, data []byte) error {
 
 func (exh *ExHandler) HandleFunc(code ActionCode, f ResponseFunc){
 	exh.m[code] = f
+}
+
+func (exh *ExHandler) send(client *wconn.Client, msg interface{}) error {
+	data, err := exh.encoder.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	client.Send(data)
+	return nil
 }

@@ -139,6 +139,9 @@ func (self *Client) Read() {
 }
 
 func (self *Client) sendCloseMsg(code int, msg string) {
+	if self.flags&SEND_CLOSE_MSG > 0 {
+		return
+	}
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	// 只接受第一次设置的关闭消息
@@ -170,6 +173,9 @@ func (self *Client) rwExitHandler(setFlag uint8) func() {
 }
 
 func (self *Client) Unregist() {
+	if self.flags & UNREGISTERED > 0 {
+		return
+	}
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	if self.flags&UNREGISTERED == 0 {

@@ -78,16 +78,13 @@ func ClientAuth() Option {
 
 func EchoMsg() Option {
 	return func(conf *HubConf) {
-		conf.handleMsg = func(client *Client, msg []byte) error {
-			client.Send(msg)
-			return nil
-		}
+		conf.handler = &EchoHanlder{}
 	}
 }
 
-func CustomerMsgHandler(handle func(*Client, []byte) error) Option {
+func CustomerMsgHandler(handler Handler) Option {
 	return func(conf *HubConf) {
-		conf.handleMsg = handle
+		conf.handler = handler
 	}
 }
 
@@ -114,6 +111,6 @@ func ProtocolOption(protocol Protocol) Option {
 	return func(conf *HubConf) {
 		conf.onClientUnregistered = protocol.OnClientUnregister
 		conf.onClientRegistered = protocol.OnClientRegister
-		conf.handleMsg = protocol.Response
+		conf.handler = protocol
 	}
 }

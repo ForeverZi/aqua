@@ -124,12 +124,14 @@ func (self *Client) Read() {
 			// 接受失败则注销此客户端
 			return
 		}
+		// 限流，操作太频繁会直接切断连接
 		if self.limiter != nil && !self.limiter.Allow() {
 			self.sendCloseMsg(BUSY_CODE, "busy")
 			return
 		}
-		if self.hub.conf.handleMsg != nil {
-			err = self.hub.conf.handleMsg(self, msg)
+		handler := self.hub.conf.handler
+		if handler != nil {
+			err = handler.Response(self, msg)
 			if err != nil {
 				self.sendCloseMsg(ERR_CODE, err.Error())
 				return

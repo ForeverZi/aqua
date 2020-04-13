@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ForeverZi/aqua/wconn"
+	"github.com/ForeverZi/aqua/handler"
 )
 
 type Server struct{}
 
 func (s *Server) ListenAndServe(addr string) *http.Server {
 	log.Printf("这是变更")
-	hub := wconn.NewHub()
-	go hub.Run()
+	hub := wconn.NewHub(wconn.CustomerMsgHandler(handler.NewExHandler()))
 	mux := http.NewServeMux()
 	mux.Handle("/ws", hub)
 	server := &http.Server{

@@ -21,7 +21,7 @@ type HubConf struct {
 	auth                 func(r *http.Request) bool
 	getuid               func(r *http.Request) int64
 	clientSendSize       int
-	handleMsg            func(client *Client, msg []byte) error
+	handler           	 Handler
 	breakerCap           int
 	breakerPeriod        time.Duration
 	onClientRegistered   func(client *Client) bool
@@ -65,6 +65,7 @@ func NewHub(options ...Option) *Hub {
 	for _, option := range options {
 		option(&hub.conf)
 	}
+	go hub.Run()
 	return &hub
 }
 
@@ -124,6 +125,7 @@ func (hub *Hub) Run() {
 			if !ok {
 				return
 			}
+			// 这边拷贝一份是不是好很多
 			log.Printf("广播消息:%v", string(msg))
 			for _, client := range hub.pool {
 				select {

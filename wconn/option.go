@@ -1,10 +1,12 @@
 package wconn
 
 import (
+	"os"
 	"net/http"
 	"strings"
 	"sync/atomic"
 	"time"
+	"log"
 )
 
 var defaultOptions = []Option{
@@ -14,6 +16,7 @@ var defaultOptions = []Option{
 	ClientSendSize(20),
 	EchoMsg(),
 	Breaker(3, 2*time.Second),
+	SetLogger(log.New(os.Stdout, "aqua", log.LstdFlags)),
 }
 
 type Option func(conf *HubConf)
@@ -112,5 +115,11 @@ func ProtocolOption(protocol Protocol) Option {
 		conf.onClientUnregistered = protocol.OnClientUnregister
 		conf.onClientRegistered = protocol.OnClientRegister
 		conf.handler = protocol
+	}
+}
+
+func SetLogger(logger Logger) Option {
+	return func(conf *HubConf){
+		conf.logger = logger
 	}
 }

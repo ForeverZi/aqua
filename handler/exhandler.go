@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 
-	"github.com/ForeverZi/aqua/wconn"
 	"github.com/ForeverZi/aqua/encoder"
+	"github.com/ForeverZi/aqua/wconn"
 	"github.com/json-iterator/go"
 )
 
@@ -18,32 +18,32 @@ const (
 )
 
 var (
-	ErrUnknowCode = fmt.Errorf("未识别的操作")
+	ErrUnknowCode       = fmt.Errorf("未识别的操作")
 	ErrUnregisteredCode = fmt.Errorf("未注册的操作")
 )
 
-type ExMsg struct{
-	Code	ActionCode
-	Params	string
+type ExMsg struct {
+	Code   ActionCode
+	Params string
 }
 
 type ResponseFunc func(client *wconn.Client, msg ExMsg) error
 
-func NewExHandler(encoder encoder.MsgProto) *ExHandler{
+func NewExHandler(encoder encoder.MsgProto) *ExHandler {
 	h := &ExHandler{
-		m: make(map[ActionCode]ResponseFunc),
+		m:       make(map[ActionCode]ResponseFunc),
 		encoder: encoder,
 	}
-	h.HandleFunc(ECHO, func(client *wconn.Client, msg ExMsg)error{
+	h.HandleFunc(ECHO, func(client *wconn.Client, msg ExMsg) error {
 		h.send(client, msg)
 		return nil
 	})
 	return h
 }
 
-type ExHandler struct{
-	m 			map[ActionCode]ResponseFunc
-	encoder		encoder.MsgProto
+type ExHandler struct {
+	m       map[ActionCode]ResponseFunc
+	encoder encoder.MsgProto
 }
 
 func (exh *ExHandler) Response(client *wconn.Client, data []byte) error {
@@ -62,7 +62,7 @@ func (exh *ExHandler) Response(client *wconn.Client, data []byte) error {
 	return f(client, msg)
 }
 
-func (exh *ExHandler) HandleFunc(code ActionCode, f ResponseFunc){
+func (exh *ExHandler) HandleFunc(code ActionCode, f ResponseFunc) {
 	exh.m[code] = f
 }
 

@@ -11,3 +11,7 @@ type Protocol interface {
 
 	Handler
 }
+
+type Logger interface {
+	Println(v ...interface{})
+}

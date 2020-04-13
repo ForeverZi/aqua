@@ -2,7 +2,6 @@ package wconn
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -21,11 +20,12 @@ type HubConf struct {
 	auth                 func(r *http.Request) bool
 	getuid               func(r *http.Request) int64
 	clientSendSize       int
-	handler           	 Handler
+	handler              Handler
 	breakerCap           int
 	breakerPeriod        time.Duration
 	onClientRegistered   func(client *Client) bool
 	onClientUnregistered func(client *Client)
+	logger               Logger
 }
 
 type Hub struct {
@@ -108,7 +108,7 @@ func (hub *Hub) Run() {
 			if !ok {
 				return
 			}
-			log.Printf("注册客户端:%v", client.id)
+			hub.conf.logger.Println("注册客户端", "id", client.id)
 			hub.pool[client.id] = client
 		case client, ok := <-hub.unregisterChan:
 			if !ok {
@@ -117,7 +117,7 @@ func (hub *Hub) Run() {
 			// 必须先检查当前的client是和需要注销的client是否一致
 			currentClient := hub.pool[client.id]
 			if currentClient == client {
-				log.Printf("移除客户端:%v", client.id)
+				hub.conf.logger.Println("移除客户端", "id", client.id)
 				delete(hub.pool, client.id)
 			}
 			go client.Close()
@@ -126,7 +126,7 @@ func (hub *Hub) Run() {
 				return
 			}
 			// 这边拷贝一份是不是好很多
-			log.Printf("广播消息:%v", string(msg))
+			hub.conf.logger.Println("广播消息", "msg", string(msg))
 			for _, client := range hub.pool {
 				select {
 				case client.send <- msg:
@@ -143,11 +143,11 @@ func (hub *Hub) Run() {
 func (hub *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conn, err := hub.conf.upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("upgrade fail:%v\n", err)
+		hub.conf.logger.Println("upgrade fail", "err", err)
 		return
 	}
 	if !hub.conf.auth(r) {
-		log.Println("unauth conn!")
+		hub.conf.logger.Println("unauth conn!")
 		conn.WriteControl(websocket.CloseMessage, []byte("authenticate required!"), time.Now().Add(10*time.Second))
 		conn.Close()
 		return

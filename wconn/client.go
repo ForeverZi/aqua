@@ -1,10 +1,9 @@
 package wconn
 
 import (
-	"log"
 	"sync"
-	"time"
 	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
@@ -91,7 +90,7 @@ func (self *Client) SendWithAck(msg AckMsg) (success bool) {
 	sendmsg := func() bool {
 		select {
 		case <-msg.Ctx.Done():
-			log.Printf("client.send阻塞\t%v:%v", "id", self.GetID())
+			self.hub.conf.logger.Println("client.send阻塞\t", "id", self.GetID())
 			return false
 		case self.send <- msg.Msg:
 			return true
@@ -180,7 +179,7 @@ func (self *Client) rwExitHandler(setFlag uint8) func() {
 }
 
 func (self *Client) Unregist() {
-	if self.flags & UNREGISTERED > 0 {
+	if self.flags&UNREGISTERED > 0 {
 		return
 	}
 	self.mu.Lock()

@@ -3,17 +3,19 @@ package aqua
 import (
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/ForeverZi/aqua/wconn"
-	"github.com/ForeverZi/aqua/handler"
 	"github.com/ForeverZi/aqua/encoder"
+	"github.com/ForeverZi/aqua/handler"
+	"github.com/ForeverZi/aqua/wconn"
 )
 
 type Server struct{}
 
 func (s *Server) ListenAndServe(addr string) *http.Server {
-	log.Printf("这是变更")
-	hub := wconn.NewHub(wconn.CustomerMsgHandler(handler.NewExHandler(encoder.JSON)))
+	logger := log.New(os.Stdout, "[aqua]", log.LstdFlags)
+	hub := wconn.NewHub(wconn.CustomerMsgHandler(handler.NewExHandler(encoder.JSON)), 
+		wconn.SetLogger(logger))
 	mux := http.NewServeMux()
 	mux.Handle("/ws", hub)
 	server := &http.Server{
@@ -21,11 +23,11 @@ func (s *Server) ListenAndServe(addr string) *http.Server {
 		Addr:    addr,
 	}
 	go func() {
-		log.Printf("aqua listen on:%v", addr)
+		logger.Println("aqua start", "listen:", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Printf("aqua server listen:%v\n", err)
+			logger.Println("aqua interrupt", "err", err)
 		}
-		log.Println("aqua server stopped...")
+		logger.Println("aqua server stopped...")
 	}()
 	return server
 }

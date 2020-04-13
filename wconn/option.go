@@ -16,7 +16,9 @@ var defaultOptions = []Option{
 	ClientSendSize(20),
 	EchoMsg(),
 	Breaker(3, 2*time.Second),
-	SetLogger(log.New(os.Stdout, "aqua", log.LstdFlags)),
+	SetLogger(&DefaultLogger{
+		logger: log.New(os.Stdout, "aqua", log.LstdFlags),
+	}),
 }
 
 type Option func(conf *HubConf)

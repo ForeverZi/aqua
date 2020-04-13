@@ -1,19 +1,18 @@
 package aqua
 
 import (
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/ForeverZi/aqua/encoder"
 	"github.com/ForeverZi/aqua/handler"
 	"github.com/ForeverZi/aqua/wconn"
+	"github.com/ForeverZi/aqua/log"
 )
 
 type Server struct{}
 
 func (s *Server) ListenAndServe(addr string) *http.Server {
-	logger := log.New(os.Stdout, "[aqua]", log.LstdFlags)
+	logger := log.New()
 	hub := wconn.NewHub(wconn.CustomerMsgHandler(handler.NewExHandler(encoder.JSON)), 
 		wconn.SetLogger(logger))
 	mux := http.NewServeMux()

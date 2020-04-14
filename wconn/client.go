@@ -96,6 +96,7 @@ func (self *Client) SendWithAck(msg AckMsg) (success bool) {
 			return true
 		}
 	}
+	// 如果会阻塞住，那么先阻塞，从而限制发送窗口的过度扩张
 	if cap(self.send) == len(self.send) {
 		success = sendmsg()
 		self.SendWnd = append(self.SendWnd, msg)

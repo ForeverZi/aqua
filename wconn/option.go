@@ -1,12 +1,12 @@
 package wconn
 
 import (
-	"os"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"sync/atomic"
 	"time"
-	"log"
 )
 
 var defaultOptions = []Option{
@@ -121,7 +121,7 @@ func ProtocolOption(protocol Protocol) Option {
 }
 
 func SetLogger(logger Logger) Option {
-	return func(conf *HubConf){
+	return func(conf *HubConf) {
 		conf.logger = logger
 	}
 }

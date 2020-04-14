@@ -35,7 +35,7 @@ func NewExHandler(encoder encoder.MsgProto) *ExHandler {
 		encoder: encoder,
 	}
 	h.HandleFunc(ECHO, func(client *wconn.Client, msg ExMsg) error {
-		h.send(client, msg)
+		h.Send(client, msg)
 		return nil
 	})
 	return h
@@ -52,9 +52,10 @@ func (exh *ExHandler) Response(client *wconn.Client, data []byte) error {
 	if err != nil {
 		return err
 	}
-	if msg.Code >= ACTION_INVALID {
-		return ErrUnknowCode
-	}
+	// 这里不做CODE的预定义
+	// if msg.Code >= ACTION_INVALID {
+	// 	return ErrUnknowCode
+	// }
 	f, ok := exh.m[msg.Code]
 	if !ok {
 		return ErrUnregisteredCode
@@ -66,7 +67,11 @@ func (exh *ExHandler) HandleFunc(code ActionCode, f ResponseFunc) {
 	exh.m[code] = f
 }
 
-func (exh *ExHandler) send(client *wconn.Client, msg interface{}) error {
+func (exh *ExHandler) Encoder() encoder.MsgProto {
+	return exh.encoder
+}
+
+func (exh *ExHandler) Send(client *wconn.Client, msg interface{}) error {
 	data, err := exh.encoder.Marshal(msg)
 	if err != nil {
 		return err

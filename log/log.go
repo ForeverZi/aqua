@@ -16,10 +16,10 @@ var Hook lumberjack.Logger
 func init() {
 	Hook = lumberjack.Logger{
 		Filename:   "./logfiles/aqua.log", // 日志文件路径
-		MaxSize:    128,              // 每个日志文件保存的最大尺寸 单位：M
-		MaxBackups: 30,               // 日志文件最多保存多少个备份
-		MaxAge:     7,                // 文件最多保存多少天
-		Compress:   false,            // 是否压缩
+		MaxSize:    128,                   // 每个日志文件保存的最大尺寸 单位：M
+		MaxBackups: 30,                    // 日志文件最多保存多少个备份
+		MaxAge:     7,                     // 文件最多保存多少天
+		Compress:   false,                 // 是否压缩
 	}
 	Level = zap.NewAtomicLevel()
 	fileCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
@@ -29,17 +29,17 @@ func init() {
 	Sugar = Logger.Sugar()
 }
 
-func New() *ZapSugarLogger{
+func New() *ZapSugarLogger {
 	return &ZapSugarLogger{
 		s: Sugar,
 	}
 }
 
-type ZapSugarLogger struct{
-	s   	*zap.SugaredLogger
+type ZapSugarLogger struct {
+	s *zap.SugaredLogger
 }
 
-func (l *ZapSugarLogger) Println(msg string, v ...interface{}){
+func (l *ZapSugarLogger) Println(msg string, v ...interface{}) {
 	l.s.Infow(msg, v...)
 }
 

@@ -20,11 +20,11 @@ type Logger interface {
 	Println(msg string, v ...interface{})
 }
 
-type DefaultLogger struct{
-	logger 	*log.Logger
+type DefaultLogger struct {
+	logger *log.Logger
 }
 
-func (l *DefaultLogger) Println(msg string, v ...interface{}){
+func (l *DefaultLogger) Println(msg string, v ...interface{}) {
 	cv := []interface{}{msg}
 	cv = append(cv, v...)
 	l.logger.Println(cv...)

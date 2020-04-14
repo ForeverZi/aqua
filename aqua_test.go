@@ -1,4 +1,4 @@
-package example
+package aqua_test
 
 import (
 	"context"
